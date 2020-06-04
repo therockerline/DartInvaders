@@ -1,9 +1,6 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:box2d_flame/box2d.dart';
-import 'package:flame/sprite.dart';
-import 'package:flameTest/src/game/main_game_controller.dart';
 import 'package:flutter/material.dart';
 
 class Spritable{
@@ -25,9 +22,7 @@ class Spritable{
     c.drawRect(spriteRect, spritePaint);
   }
 
-  void destroy(){
-
-  }
+  void update(double t){}
 
   Size get tileSize => _tileSize;
   Vector2 get pivot => _pivot;

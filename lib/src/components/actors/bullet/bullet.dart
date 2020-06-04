@@ -18,10 +18,6 @@ class Bullet extends Spritable with MoveAble,DestroyAble{
 
   void update(double t) {
       spriteRect = spriteRect.translate(velocity * direction.x, velocity * direction.y);
-  }
-
-  void destroy(){
-    spriteRect = spriteRect.translate(0, -100);
-    super.destroy();
+      super.update(t);
   }
 }

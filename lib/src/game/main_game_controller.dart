@@ -4,13 +4,16 @@ import 'dart:ui';
 import 'package:flame/anchor.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:flame/gestures.dart';
 import 'package:flame/keyboard.dart';
 import 'package:flame/position.dart';
 import 'package:flame/text_config.dart';
+import 'package:flameTest/src/game/controllers/input/input_controller.dart';
 import 'package:flameTest/src/game/controllers/player/player_controller.dart';
 import 'package:flameTest/src/game/controllers/score_controller.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flameTest/src/game/mixins/input_able.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import 'controllers/enemy/enemy_controller.dart';
@@ -29,25 +32,35 @@ class KeyEvent{
 }
 
 class GameEvent{
-  static final String BULLET_UPDATE = 'BULLET_UPDATE';
+  // ignore: non_constant_identifier_names
+  static final String ENEMY_BULLET_UPDATE = 'ENEMY_BULLET_UPDATE';
+  // ignore: non_constant_identifier_names
+  static final String PLAYER_BULLET_UPDATE = 'PlAYER_BULLET_UPDATE';
+  // ignore: non_constant_identifier_names
   static final String FIRE = 'FIRE';
+  // ignore: non_constant_identifier_names
   static final String TAP = 'TAP';
+  // ignore: non_constant_identifier_names
   static final String KEY = 'KEY';
+  // ignore: non_constant_identifier_names
   static final String DESTROYED = 'DESTROYED';
+
+
   String type;
   dynamic value;
   GameEvent(this.type, this.value);
 }
 
-class GameController extends Game with KeyboardEvents{
+class GameController extends Game with KeyboardEvents, InputAble{
   //Size of the screen from the resize event
   static Size screenSize;
   static Random rand;
+  static double tileSize;
   static StreamController<GameEvent> tapEvent = StreamController<GameEvent>.broadcast();
   EnemyController ec;
   PlayerController pc;
   ScoreController sc;
-  double tileSize;
+
   TextConfig config = TextConfig(fontSize: 15.0, fontFamily: 'Awesome Font', color: Colors.white);
 
 
@@ -73,6 +86,7 @@ class GameController extends Game with KeyboardEvents{
     canvas.drawRect(bgRect, bgPaint);
     pc.render(canvas);
     ec.render(canvas);
+    config.render(canvas, "Life: ${pc.player.currentLife}/${pc.player.totalLife}", Position(50, 5), anchor: Anchor.topCenter);
     config.render(canvas, "Enemy: ${ec.enemies.length}", Position(50, screenSize.height - 50), anchor: Anchor.topCenter);
     config.render(canvas, "${sc.score} :Point", Position(screenSize.width - 50, screenSize.height - 50), anchor: Anchor.topCenter);
   }
@@ -90,14 +104,6 @@ class GameController extends Game with KeyboardEvents{
     ec.update(t);
   }
 
-  void onTapDown(TapDownDetails d) {
-    tapEvent.add(GameEvent(GameEvent.TAP, true));
-  }
-
-  void onTapUp(TapDownDetails d) {
-    tapEvent.add(GameEvent(GameEvent.TAP, false));
-  }
-
   @override
   void onKeyEvent(RawKeyEvent e) {
     // TODO: implement onKeyEvent
@@ -107,6 +113,5 @@ class GameController extends Game with KeyboardEvents{
     else
       tapEvent.add(GameEvent(GameEvent.FIRE, ev.isDown));
   }
-
 
 }

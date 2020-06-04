@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:box2d_flame/box2d.dart';
-import 'package:flameTest/src/game/main_game_controller.dart';
 
 class ScrappyButton {
   Rect rect;
