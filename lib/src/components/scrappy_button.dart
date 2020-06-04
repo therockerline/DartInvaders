@@ -19,10 +19,6 @@ class ScrappyButton {
     paint = Paint();
     paint.color = Color(0xff6ab04c);
     rect = Rect.fromLTWH(position.x,position.y,_tileSize.width,_tileSize.height);
-    listener = GameController.tapEvent.stream.listen((offset) {
-      if(isPressed(offset))
-        onClick();
-    });
   }
 
   void render(Canvas c) {

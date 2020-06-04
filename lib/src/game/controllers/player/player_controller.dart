@@ -3,23 +3,42 @@ import 'dart:ui';
 
 import 'package:box2d_flame/box2d.dart';
 import 'package:flameTest/src/components/actors/bullet/bullet.dart';
-import 'file:///C:/Users/LDC/StudioProjects/DartInvaders/lib/src/game/controllers/player/player.dart';
 import 'package:flameTest/src/game/controllers/base/base_controller.dart';
+import 'package:flameTest/src/game/controllers/player/player.dart';
 import 'package:flameTest/src/game/main_game_controller.dart';
+import 'package:flameTest/src/game/utils/utils.dart';
 
 class PlayerController extends BaseController{
   Player player;
   List<Bullet> fired = [];
-  StreamController<Bullet> bulletStream = StreamController<Bullet>.broadcast();
+
+  double cadenzaDiFuoco = 10.0;
+  double deltaTime = 0;
+
+  bool isOnFire = false;
+
+  Vector2 direction = Utils.ZERO;
 
   PlayerController(){
+    listeners.add(GameController.tapEvent.stream.listen((event) {
+      if(event.type == GameEvent.FIRE)
+        isOnFire = event.value;
+      if(event.type == GameEvent.KEY){
+        KeyEvent ke = event.value;
+        if(ke.key == 'Key A'){
+          direction = ke.isDown ? Utils.LEFT : Utils.ZERO;
+        }
+        if(ke.key == 'Key D'){
+          direction = ke.isDown ? Utils.RIGHT : Utils.ZERO;
+        }
+      }
+    }));
+  }
+
+  void spawnPlayer(){
     double x = GameController.screenSize.width/2;
     double y = GameController.screenSize.height - 100;
     player = Player(Vector2(x,y), Size(32,32));
-    listeners.add(GameController.tapEvent.stream.listen((offset) {
-      print('fire');
-      spawnBullet();
-    }));
   }
 
   void render(Canvas canvas) {
@@ -28,16 +47,22 @@ class PlayerController extends BaseController{
   }
 
   void update(double t) {
-    player.update(t);
+    player.update(t, direction);
+    if(isOnFire){
+      deltaTime+=t;
+      if(deltaTime>1/cadenzaDiFuoco){
+        deltaTime = 0;
+        spawnBullet();
+      }
+    }else{
+      deltaTime = 1/cadenzaDiFuoco;
+    }
+    fired.removeWhere((element) => !element.isAlive);
     fired.forEach((bullet) {
-      if(bullet.isAlive) {
-        bullet.update(t);
-        bulletStream.add(bullet);
-        if (bullet.position.y <= 0) {
-          bullet.destroy();
-        }
-      }else{
-        //fired.remove(bullet);
+      bullet.update(t);
+      GameController.tapEvent.add(GameEvent(GameEvent.BULLET_UPDATE, bullet));
+      if (bullet.position.y <= 0) {
+        bullet.destroy();
       }
     });
   }

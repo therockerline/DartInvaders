@@ -2,13 +2,20 @@ import 'dart:ui';
 
 import 'package:box2d_flame/box2d.dart';
 import 'package:flameTest/src/components/actors/bullet/bullet.dart';
-import 'file:///C:/Users/LDC/StudioProjects/DartInvaders/lib/src/game/controllers/enemy/enemy.dart';
 import 'package:flameTest/src/game/controllers/base/base_controller.dart';
+import 'package:flameTest/src/game/controllers/enemy/enemy.dart';
 import 'package:flameTest/src/game/main_game_controller.dart';
 
 class EnemyController extends BaseController{
   List<Enemy> enemies = [];
   EnemyController(){
+    listeners.add(GameController.tapEvent.stream.listen((GameEvent event) {
+      if(event.type == GameEvent.BULLET_UPDATE)
+        checkCollision(event.value);
+    }));
+  }
+
+  void spawnEnemies(){
     int qnt = 15; //GameController.rand.nextInt(10);
     int row = 3; //GameController.rand.nextInt(5);
     double x = (GameController.screenSize.width - 30) / qnt;
@@ -22,6 +29,7 @@ class EnemyController extends BaseController{
   }
 
   void update(double t) {
+    enemies.removeWhere((element) => !element.isAlive);
     enemies.forEach((Enemy enemy) {
       if(enemy.isAlive)
         enemy.update(t);
@@ -29,7 +37,7 @@ class EnemyController extends BaseController{
   }
 
   void spawnEnemy(Vector2 pos) {
-    enemies.add(Enemy(pos, Size.square(16)));
+    enemies.add(Enemy(pos, Size.square(16), scoreValue: (pos.y / 15).round()));
   }
 
   void checkCollision(Bullet bullet) {

@@ -14,13 +14,14 @@ class Player extends Spritable with HitAble, MoveAble,DestroyAble{
 
   Player(Vector2 initialPosition, Size tileSize, {Vector2 pivot}) : super(initialPosition: initialPosition, spritePath: 'assets/images/player.png'  ){
     isAlive = true;
+    velocity = 300;
     spritePaint = Paint();
     spritePaint.color = Color(0xffffb04c);
     spriteRect = Rect.fromLTWH(position.x,position.y,this.tileSize.width,this.tileSize.height);
   }
 
-  void update(double t) {
-
+  void update(double t, Vector2 direction) {
+    spriteRect = spriteRect.translate(direction.x * velocity * t, direction.y * velocity * t);
   }
 
   void die() {
